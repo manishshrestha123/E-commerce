@@ -54,8 +54,60 @@ app.post("/signup",async(req,res)=>{
 })
 
 //api login
-app.post("/login",(req,res)=>{
+app.post("/login",async(req,res)=>{
     console.log(req.body)
+    const {email} = req.body
+
+    const result = await userModel.findOne({email: email})
+    console.log(result)
+    if(result)
+    {
+        console.log(result) 
+        const dataSend = {
+            _id: result._id,    
+            firstName: result.firstName,
+            lastName: result.lastName,
+            email: result.email,
+            image: result.image,
+        }
+        console.log(dataSend)
+        res.send({message:"Login is successful", alert: true, data: dataSend})
+    }
+    else
+    {
+        res.send ({message: "Email is not available.please sign up", alert:false})
+    }
+});
+
+//product section
+
+const schemaProduct = mongoose.Schema({
+    name: String,
+    category: String,
+    image: String,
+    price: String,
+    description: String,
+});
+const productModel = mongoose.model("product", schemaProduct)
+
+
+//save product in data
+//api
+app.post("/uploadProduct", async(req,res)=>{
+    console.log(req.body)
+    const data = await productModel(req.body)
+    const datasave = await data.save()
+    res.send({message:"Upload successfully"})
 })
+
+
+app.get("/product", async(req,res) =>
+{
+    const data = await productModel.find({})
+    res.send(JSON.stringify(data))
+})
+
+
+
 
 app.listen(PORT, ()=>console.log("server is running at port:"+ PORT))
